@@ -63,15 +63,6 @@ char** disassemble(uint32_t* instructionList, uint8_t length){
         }
 
     }
-
-    /*Putting in the labels
-    1. For each of the instructions with labels add it to the linked list and calculate its absolute position
-    2. Check if any of them are pointing to the same position and keep only one
-    3. Based on the order assign the names in the format .Lx: where x is its position in the linked list
-    4. Go back through each instruction and change the arguement based on the name generated and index calculated
-    5. Sort the linked list based on the absolute index
-    6. Go back through the instructions again and add the labels in while adding 1 position for each time you add a label
-    */
     
     //Add labels into the instructions
     if(extra != 0){
@@ -82,16 +73,18 @@ char** disassemble(uint32_t* instructionList, uint8_t length){
 
         for(int i = 0; i < length; i++){
             line = parseLine(sourceCode[i]);
-            strcpy(label, ".Lx");
+            strcpy(label, ".L");
 
             if(strcmp(line[0], "beq") == 0 || strcmp(line[0], "bne") == 0){
-                label[2] = '0' + labelCount++;
+                addNumToLabel(label, labelCount);
+                labelCount++;
                 location = i + arrayToNum(line[3]) + 1;
                 addToList(head, label, location);
                 sprintf(sourceCode[i], "%s %s, %s, %s", line[0], line[1], line[2], findNode(head, location));
             }
             else if(strcmp(line[0], "j") == 0 || strcmp(line[0], "jal") == 0){
-                label[2] = '0' + labelCount++;
+                addNumToLabel(label, labelCount);
+                labelCount++;
                 location = (arrayToNum(line[1]) - 0x400000) >> 2;
                 addToList(head, label, location);
                 sprintf(sourceCode[i], "%s %s", line[0], findNode(head, location));
@@ -121,15 +114,39 @@ char** disassemble(uint32_t* instructionList, uint8_t length){
     shiftArray(sourceCode, 0, length + extra - 1);
     strcpy(sourceCode[0], "main:");
 
+    //Delete Linked list
     ptr = head;
     while(ptr != nullptr){
-        printf("Name- %s Location- %u\n", ptr->name, ptr->location);
-        ptr = ptr->next;
+        head = head->next;
+        delete[] ptr->name;
+        delete ptr;
+        ptr = head;
     }
 
     delete[] label;
 
     return(sourceCode);
+}
+
+//Concatonates the string version of the number to the label
+void addNumToLabel(char* name, uint8_t num){
+    char numArray[] = "\0\0\0\0";
+
+    //Add the digits to the array
+    for(int i = 0; true; i++){
+        numArray[i] = num % 10 + '0';
+        num /= 10;
+
+        if(num == 0)
+            break;
+        
+        //Shift over the num array
+        for(int j = 3; j > 0; j++){
+            numArray[j] = numArray[j - 1];
+        }
+    }
+
+    strcat(name, numArray);
 }
 
 //Sorts the list based on the location variable
@@ -175,6 +192,7 @@ char* findNode(struct label* head, uint32_t location){
 //Adds node to list while checking if the node location already exists
 void addToList(struct label* &head, char* name, uint32_t location){
     
+    //If the head doesnt exist create the linked list
     if(head == nullptr){
         head = new struct label;
         head->location = location;
@@ -184,6 +202,8 @@ void addToList(struct label* &head, char* name, uint32_t location){
     }
     else{
         struct label* ptr = head;
+
+        //Check if the location exists in the linked list
         while(ptr->next != nullptr){
             if(ptr->location == location){
                 return;
@@ -377,13 +397,9 @@ uint8_t instructionLookup(uint8_t opcode, uint8_t funct, uint8_t fmt, uint8_t ft
 
 //fType specifies whether its floating point or not
 uint8_t regLookup(uint8_t num, bool fType){
-    if(num == 29 || num == 30){//Get rid of after debugging
-        return(num);
-    }
-
     uint8_t offset = fType ? 64 : 32;
 
-    for(int i = 32/*offset*/; i < regNum; i++){
+    for(int i = offset; i < regNum; i++){
         if(registers[i].val == num){
             return(i);
         }

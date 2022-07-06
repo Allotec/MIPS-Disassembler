@@ -116,3 +116,4 @@ uint8_t extraLines(uint32_t* instruction, uint8_t length);
 void addToList(struct label* &head, char* name, uint32_t location);
 char* findNode(struct label* head, uint32_t location);
 void sortList(struct label* head);
+void addNumToLabel(char* name, uint8_t num);
