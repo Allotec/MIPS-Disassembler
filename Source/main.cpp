@@ -7,8 +7,8 @@
 
 int main(int argc, char** argv){
     std::string line;
-    std::ifstream myfile("C:\\Users\\Matthew Champagne\\OneDrive\\Personal Projects\\MIPS-Disassembler\\TestProgram\\instructions.txt");
-    std::ofstream output("Output.asm");
+    std::ifstream myfile(argv[1]);
+    std::ofstream output(argv[2]);
     std::vector<uint32_t> arrayLines;
 
     if (myfile.is_open()){
