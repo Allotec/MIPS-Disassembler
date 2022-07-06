@@ -88,6 +88,21 @@ const int lineSize = 30;
 const int tokenSize = 12;
 const int maxTokens = 4;
 
+//Assembler Functions
+uint32_t* assemble(char** arr, uint8_t maxSize, uint8_t extraLines);
+uint32_t mipsInstruction(char* opcode, char* rd, char* rs, char* rt, struct label* head, uint32_t programCounter);
+uint32_t opcodeLookup(char* opcode);
+uint32_t regLookup(char* reg);
+int arrayToNum(char* num);
+int mathPow(int x, uint8_t y);
+uint8_t labelFind(char* array, char c);
+uint32_t labelFinder(struct label* head, char* array);
+char** parseLine(char* line);
+void delete2d(char** array, uint8_t length);
+struct label* labelList(char** array, uint8_t &length);
+uint8_t replacePseudo(char** array, uint8_t length);
+void shiftArray(char** array, uint8_t endIndex, uint8_t length);
+
 //Dissassembler Functions
 char** disassemble(uint32_t* instructionList, uint8_t length);
 uint8_t instructionLookup(uint8_t opcode, uint8_t funct, uint8_t fmt, uint8_t ft);
@@ -97,3 +112,7 @@ char* iTypeDis(uint32_t instruction, uint8_t opcodeIndex, uint8_t rs, uint8_t rt
 char* jTypeDis(uint32_t instruction, uint8_t opcodeIndex);
 char* frTypeDis(uint32_t instruction, uint8_t opcodeIndex, uint8_t fmt, uint8_t ft, uint8_t funct);
 char* fiTypeDis(uint32_t instruction, uint8_t opcodeIndex, uint8_t fmt, uint8_t ft);
+uint8_t extraLines(uint32_t* instruction, uint8_t length);
+void addToList(struct label* &head, char* name, uint32_t location);
+char* findNode(struct label* head, uint32_t location);
+void sortList(struct label* head);

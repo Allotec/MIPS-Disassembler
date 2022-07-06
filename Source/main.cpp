@@ -32,7 +32,7 @@ int main(int argc, char** argv){
 
     char** source = disassemble(instructionList, length);
     
-    for(int i = 0; i < length; i++){
+    for(int i = 0; source[i] != nullptr && source[i][0] != '\0'; i++){
         output << source[i] << std::endl;
     }
 
